@@ -2,34 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
 @layer base {
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    height: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     font-family: 'DM Sans', sans-serif;
     background: #0F1B35;
     color: #F8FAFC;
-    margin: 0;
+    min-height: 100%;
+    min-height: 100dvh;
+    overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3 { font-family: 'Sora', sans-serif; }
+
+  input, textarea, select, button {
+    font-family: inherit;
+    -webkit-appearance: none;
+  }
 }
 
 @layer utilities {
-  .font-display { font-family: 'Sora', sans-serif; }
-  .font-mono-dm { font-family: 'DM Mono', monospace; }
+  .font-display  { font-family: 'Sora', sans-serif; }
+  .font-body     { font-family: 'DM Sans', sans-serif; }
+  .font-mono-dm  { font-family: 'DM Mono', monospace; }
+
   .glass {
-    background: rgba(255,255,255,0.06);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.12);
   }
-  .glass-light {
-    background: rgba(255,255,255,0.92);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(0,0,0,0.08);
+
+  .glass-strong {
+    background: rgba(255,255,255,0.11);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.16);
   }
+
+  /* Safe area helpers */
+  .pt-safe  { padding-top: env(safe-area-inset-top, 0px); }
+  .pb-safe  { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .px-safe  { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+
+  .min-h-dvh { min-height: 100dvh; }
+  .h-dvh     { height: 100dvh; }
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+/* Remove number input arrows */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
