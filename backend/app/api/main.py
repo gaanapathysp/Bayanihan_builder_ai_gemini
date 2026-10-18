@@ -243,6 +243,8 @@ async def submit_damage(
         water_line_cm=damage_report.get("water_line_cm"),
         max_rainfall_mm=claim["weather_evidence"]["max_rainfall_mm"],
         damage_findings=damage_report.get("findings", []),
+        manipulation_risk=damage_report.get("manipulation_risk", "none"),
+        manipulation_flags=damage_report.get("manipulation_flags", []),
     )
 
     # Build dossier
@@ -264,10 +266,20 @@ async def submit_damage(
 
     return {
         "claim_id": claim_id,
+        "policy_holder": claim.get("policy_id", "Claimant"),
         "fraud_route": fraud_result["route"],
         "fraud_score": fraud_result["score"],
+        "fraud_flags": fraud_result["flags"],
         "net_payable_php": dossier["net_payable_php"],
         "recommendation": dossier["recommendation"],
+        "coverage_items": dossier.get("coverage_items", []),
+        "deductible_php": dossier.get("deductible_php", 5000),
+        "advance_paid_php": claim["advance_paid_php"],
+        "weather": {
+            "rainfall_mm": claim["weather_evidence"]["max_rainfall_mm"],
+            "wind_kph": claim["weather_evidence"]["max_wind_kph"],
+        },
+        "flood_evidence": claim.get("flood_evidence", {}),
         "dossier": dossier,
     }
 
@@ -315,7 +327,10 @@ def event_summary(event_id: str):
 
 
 # ── Serve React frontend (must be last) ───────────────────────────────────────
-_dist = Path(r"C:\Users\asus\OneDrive\Desktop\AI builder\bayanihan\frontend\dist")
+_dist = Path(os.environ.get(
+    "FRONTEND_DIST",
+    str(Path(__file__).parent.parent.parent.parent / "frontend" / "dist")
+))
 _index = str(_dist / "index.html")
 
 app.mount("/assets", StaticFiles(directory=str(_dist / "assets")), name="assets")

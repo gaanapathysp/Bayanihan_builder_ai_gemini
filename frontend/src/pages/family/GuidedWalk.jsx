@@ -31,6 +31,7 @@ export default function GuidedWalk() {
   const [showCoaching, setShowCoaching] = useState(false)
   const [uploading,    setUploading]    = useState(false)
   const [camError,     setCamError]     = useState(false)
+  const [gps,          setGps]          = useState({ lat: null, lon: null, status: 'pending' })
 
   const startCamera = useCallback(async (mode) => {
     if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop())
@@ -52,6 +53,15 @@ export default function GuidedWalk() {
 
   useEffect(() => { startCamera(facingMode) }, [facingMode, startCamera])
   useEffect(() => () => { streamRef.current?.getTracks().forEach(t => t.stop()) }, [])
+
+  useEffect(() => {
+    if (!navigator.geolocation) { setGps(g => ({ ...g, status: 'denied' })); return }
+    navigator.geolocation.getCurrentPosition(
+      pos => setGps({ lat: pos.coords.latitude, lon: pos.coords.longitude, status: 'granted' }),
+      ()  => setGps({ lat: 14.5995, lon: 120.9842, status: 'denied' }),
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }, [])
 
   useEffect(() => {
     if (!recording) return
@@ -91,8 +101,8 @@ export default function GuidedWalk() {
 
     const blob = new Blob(chunksRef.current, { type: 'video/webm' })
     const fd   = new FormData()
-    fd.append('lat', '14.5995')
-    fd.append('lon', '120.9842')
+    fd.append('lat', String(gps.lat ?? 14.5995))
+    fd.append('lon', String(gps.lon ?? 120.9842))
 
     if (isDamageMode) {
       const claimId = damageClaimId || localStorage.getItem('bayanihan_claim_id')
@@ -163,6 +173,18 @@ export default function GuidedWalk() {
         </div>
 
         <div className="flex items-center gap-2">
+          <span className={`text-[10px] font-mono-dm px-2 py-1 rounded-full flex items-center gap-1 ${
+            gps.status === 'granted' ? 'bg-safe/20 text-safe-light' :
+            gps.status === 'denied'  ? 'bg-storm-amber/20 text-storm-amber' :
+            'glass text-white/40'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              gps.status === 'granted' ? 'bg-safe-light' :
+              gps.status === 'denied'  ? 'bg-storm-amber' :
+              'bg-white/40 animate-pulse'
+            }`} />
+            {gps.status === 'granted' ? 'GPS' : gps.status === 'denied' ? 'GPS?' : 'GPS…'}
+          </span>
           {isDamageMode && (
             <span className="text-[10px] font-display font-600 text-storm-amber uppercase tracking-widest glass px-2.5 py-1 rounded-full">
               Damage Walk

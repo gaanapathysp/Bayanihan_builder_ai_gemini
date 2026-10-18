@@ -7,7 +7,9 @@ def check_fraud(claim_id: str, baseline_sha256: str, damage_sha256: str,
                 video_lat: float, video_lon: float,
                 policy_lat: float, policy_lon: float,
                 water_line_cm: int | None, max_rainfall_mm: float,
-                damage_findings: list[dict]) -> dict:
+                damage_findings: list[dict],
+                manipulation_risk: str = "none",
+                manipulation_flags: list[str] | None = None) -> dict:
     """
     Runs all fraud integrity checks and returns a score (0-100) and route.
     Score < 30: clear. 30-69: review. >= 70: hold.
@@ -48,6 +50,16 @@ def check_fraud(claim_id: str, baseline_sha256: str, damage_sha256: str,
     if len(low_conf) > 0:
         flags.append({"check": "low_confidence", "detail": f"{len(low_conf)} damage findings have confidence below {FRAUD_CONFIDENCE_MIN} — adjuster review needed.", "weight": 10})
         score += 10
+
+    # 5. Video manipulation detection
+    if manipulation_risk == "high":
+        detail = f"Gemini detected video manipulation: {', '.join(manipulation_flags or ['screen recording or staging suspected'])}."
+        flags.append({"check": "manipulation_detected", "detail": detail, "weight": 80})
+        score += 80
+    elif manipulation_risk == "low":
+        detail = f"Minor anomalies detected: {', '.join(manipulation_flags or ['review recommended'])}."
+        flags.append({"check": "manipulation_possible", "detail": detail, "weight": 20})
+        score += 20
 
     score = min(score, 100)
 

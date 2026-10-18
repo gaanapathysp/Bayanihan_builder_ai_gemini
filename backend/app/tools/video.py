@@ -21,6 +21,8 @@ class DamageReport(BaseModel):
     findings: list[Finding]
     water_line_cm: int | None
     summary: str
+    manipulation_flags: list[str]   # e.g. ["screen_recording", "staged_damage", "lighting_inconsistency"]
+    manipulation_risk: str          # "none" | "low" | "high"
 
 
 class InventoryItem(BaseModel):
@@ -59,8 +61,16 @@ def compare_videos(baseline_path: str, damage_path: str, inventory_json: str) ->
         f"Video 1 is the home BEFORE the typhoon (baseline). "
         f"Video 2 is AFTER the typhoon (damage). "
         f"Baseline inventory: {inventory_json}. "
-        f"For each room, identify: new damage, pre-existing damage, missing items, "
-        f"items not visible. Estimate water line height in cm if visible. "
+        f"\n\nFRAUD DETECTION — check both videos for these signs of manipulation:\n"
+        f"- Screen recording: bezel edges, screen glare, Moiré patterns, refresh-rate flicker visible\n"
+        f"- Staged damage: items arranged unnaturally, no water or mud stains despite flood claim, "
+        f"  damage inconsistent with flood physics (e.g. items wet at top but not bottom)\n"
+        f"- Inventory mismatch: items visible in Video 2 that were NOT in Video 1 and don't match baseline\n"
+        f"- Lighting inconsistency: sudden changes suggesting a different location or time of day\n"
+        f"Set manipulation_risk to 'high' if any strong fraud indicator found, 'low' if minor anomalies, 'none' if clean.\n"
+        f"\nDAMAGE ASSESSMENT — for each room compare before and after:\n"
+        f"Identify new damage, pre-existing damage, missing items, items not visible. "
+        f"Estimate water line height in cm if visible. "
         f"Be conservative — only flag damage you can clearly see."
     )
 

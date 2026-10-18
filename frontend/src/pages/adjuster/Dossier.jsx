@@ -38,7 +38,12 @@ const TABS = [
 
 export default function Dossier() {
   const { state } = useLocation()
-  const [data] = useState(() => ({ ...DEMO, ...(state || {}) }))
+  const [data] = useState(() => {
+    const s = state || {}
+    const d = s.dossier || {}
+    // merge: DEMO defaults → real dossier fields → top-level state fields
+    return { ...DEMO, ...d, ...s, dossier: undefined }
+  })
   const [decided, setDecided] = useState(null)
   const [adjReason, setAdjReason] = useState('')
   const [tab, setTab] = useState('evidence')
@@ -131,7 +136,11 @@ export default function Dossier() {
           <div className="absolute w-20 h-20 rounded-full bg-brand/25 blur-2xl top-1/3 left-1/3" />
           <div className="absolute w-12 h-12 rounded-full bg-brand/20 blur-xl top-1/2 left-1/2" />
           <div className="absolute w-3 h-3 rounded-full bg-storm-amber border-2 border-white shadow-lg" style={{ top:'48%', left:'46%' }} />
-          <p className="absolute bottom-2 left-3 text-[10px] text-white/35 font-mono-dm">Flooded area: 34%</p>
+          <p className="absolute bottom-2 left-3 text-[10px] text-white/35 font-mono-dm">
+            {data.flood_evidence?.flooded_share != null
+              ? `Flooded area: ${Math.round(data.flood_evidence.flooded_share * 100)}%`
+              : `Rainfall: ${data.weather?.rainfall_mm ?? 182}mm — threshold exceeded`}
+          </p>
         </div>
         <p className="text-[11px] text-safe-light mt-2">✓ Flood confirmed at insured address</p>
       </div>
