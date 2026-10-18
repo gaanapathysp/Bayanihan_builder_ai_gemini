@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #0F1B35;
+    color: #F8FAFC;
+    margin: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1, h2, h3 { font-family: 'Sora', sans-serif; }
+}
+
+@layer utilities {
+  .font-display { font-family: 'Sora', sans-serif; }
+  .font-mono-dm { font-family: 'DM Mono', monospace; }
+  .glass {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .glass-light {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
